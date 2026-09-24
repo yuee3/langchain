@@ -3,9 +3,6 @@ type: "Developer Tools & Commands"
 title: "Development Commands and Local Setup"
 description: "Quick reference for uv, make, lint, test, and type-checking commands in the LangChain monorepo, including environment setup, pre-commit hooks, and testing workflows."
 tags: [development, build, testing, linting, typing, uv, make, pre-commit, local-setup]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-21T08:30:16.745Z
 sources:
   - id: openwiki-source-4d1645cb6317345817452838
     resource: repo://.pre-commit-config.yaml
@@ -23,7 +20,10 @@ sources:
     resource: repo://libs/Makefile
   - id: openwiki-source-a6e669bb11f217c6fbd06670
     resource: repo://libs/partners/anthropic/Makefile
-generated: { by: "openwiki/0.5.0", at: "2026-09-03T15:18:34.589Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-24T08:28:08.003Z
 ---
 
 ## Overview
@@ -71,8 +71,8 @@ The `.pre-commit-config.yaml` defines hooks that enforce:
 
 - **Standard validation**: YAML/TOML syntax checking, proper file endings, no trailing whitespace
 - **Text normalization**: Fix curly quotes and non-standard spaces
-- **Per-package format and lint**: Each package in `libs/` (core, langchain, partners/*) runs `make format lint`
-- **Version consistency checks**: Ensure `pyproject.toml` versions match source code for `langchain-core`, `langchain`, and partner packages
+- **Per-package format and lint**: Each package in `libs/` (core, langchain, langchain_v1, text-splitters, standard-tests, and partners/*) runs `make format lint`
+- **Version consistency checks**: Ensure `pyproject.toml` versions match source code for `langchain-core`, `langchain`, and partner packages (anthropic, chroma, deepseek, exa, fireworks, groq, huggingface, mistralai, nomic, ollama, openai, openrouter, perplexity, and others)
 
 These hooks automatically prevent commits that fail linting or have formatting issues. They use the same Makefiles documented below.
 
@@ -257,8 +257,34 @@ All packages follow the same Makefile structure:
 Package-specific commands (see Makefiles in each directory):
 
 - `langchain_v1`: `make test_fast`, `make coverage_agents`, `make start_services`, `make stop_services`
-- `core`: `make check_imports`, `make benchmark`
+- `core`: `make check_imports`, `make benchmark`, `make test_profile`
 - `partners/*`: `make test TEST_FILE=tests/integration_tests/`
+
+## Service Management (langchain_v1)
+
+The `langchain_v1` package runs integration tests using Docker services. These targets manage PostgreSQL and Redis containers:
+
+```bash
+# Start PostgreSQL and Redis services for testing
+make start_services
+
+# Stop all services and clean up volumes
+make stop_services
+
+# Run unit tests with services automatically started and stopped
+make test
+
+# Run unit tests in watch mode with services
+make test_watch
+
+# Run extended tests with services
+make extended_tests
+
+# Run tests without Docker (in-memory mode)
+make test_fast
+```
+
+The `make test` target automatically starts services before running tests and stops them afterward, managing exit codes properly. Use `LANGGRAPH_TEST_FAST=0` to force Docker services or `LANGGRAPH_TEST_FAST=1` for in-memory mode.
 
 ## Common Workflows
 

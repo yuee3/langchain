@@ -3,9 +3,6 @@ type: "Architecture"
 title: "Message Types and Content Representation"
 description: "Document the message abstraction, standardized content blocks for multimodal LLM I/O, message hierarchy, and provider-specific block translators."
 tags: [messages, content-blocks, chat-models, streaming, multimodal, provider-adapters]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-21T08:30:16.745Z
 sources:
   - id: openwiki-source-77dc1fb726463969f9d53658
     resource: repo://libs/core/langchain_core/messages/ai.py
@@ -29,7 +26,10 @@ sources:
     resource: repo://libs/core/langchain_core/messages/tool.py
   - id: openwiki-source-498a9586e021b126ab8a8b42
     resource: repo://libs/core/langchain_core/messages/utils.py
-generated: { by: "openwiki/0.5.0", at: "2026-09-08T08:27:09.597Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-24T08:28:08.003Z
 ---
 
 ## Overview
@@ -362,10 +362,18 @@ When `AIMessage.content_blocks` is accessed:
 
 The utils module provides helpers for working with messages:
 
-**`get_buffer_string(messages, format="prefix")`** (`repo://libs/core/langchain_core/messages/utils.py#L287-L370`)  
-Converts a sequence of messages to a single string for logging, prompting, or debugging:
-- **`format="prefix"`** (default): Role-prefixed format like `"Human: ...\nAI: ..."`. Multimodal content blocks are skipped; only text and `text` blocks included.
-- **`format="xml"`**: XML-formatted output with `<message type="role">content</message>` structure. Supports safe rendering of complex multimodal content (images, audio, video, reasoning, tool calls) with proper character escaping. Base64-encoded data is skipped. Useful when message content may contain role-like prefixes that could cause ambiguity.
+**`get_buffer_string(messages, format="prefix")`** (`repo://libs/core/langchain_core/messages/utils.py#L297-L525`)  
+Converts a sequence of messages to a single string for logging, prompting, or debugging. Supports customizable role prefixes (`human_prefix`, `ai_prefix`, `system_prefix`, `function_prefix`, `tool_prefix`) and message separators.
+
+- **`format="prefix"`** (default): Role-prefixed format like `"Human: ...\nAI: ..."`. Uses the `text` property to extract concatenated text from all text-type content blocks. For `AIMessage`, appends `tool_calls` or `function_call` (if present) as string representation. Multimodal blocks (images, audio, video) are automatically skipped.
+
+- **`format="xml"`**: XML-formatted output with `<message type="role">content</message>` structure. Supports safe rendering of complex multimodal content:
+  - **Supported blocks**: `text`, `reasoning` (wrapped in `<reasoning>` tags), `image`, `image_url` (OpenAI-style), `audio`, `video` (with URL or file_id only), `text-plain` (truncated to 500 chars), `server_tool_call`, and `server_tool_result` (with args/output truncated to 500 chars).
+  - **Content escaping**: All text content uses `xml.sax.saxutils.escape()` for safe XML rendering; attributes use `quoteattr()`.
+  - **Base64 handling**: Blocks with base64 data or data URLs are skipped entirely.
+  - **Tool calls**: AIMessages with tool calls use nested structure with `<content>` and `<tool_call>` elements; tool call IDs longer than 64 characters are abbreviated.
+  - **Unknown blocks**: Silently skipped.
+  - **Useful for**: Safely handling messages that contain role-like prefixes or complex multimodal content that could cause ambiguity in prefix format.
 
 **`convert_to_messages` and `convert_to_openai_messages`**  
 Coerce various input formats (dicts, strings, `MessageLikeRepresentation` union) into typed message objects.

@@ -5,7 +5,7 @@ description: Factory function for instantiating chat models from provider string
 tags: [chat-models, factory-pattern, initialization, model-parameters, configuration, provider-registry]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-21T08:30:16.745Z
+    at: 2026-09-24T08:28:08.003Z
 sources:
   - id: openwiki-source-c479d4fffee5cf62576699e4
     resource: repo://libs/langchain_v1/langchain/chat_models/base.py

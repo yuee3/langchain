@@ -12,10 +12,10 @@ sources:
     resource: repo://libs/partners/openai/langchain_openai/chat_models/base.py
   - id: openwiki-source-74e5bef080f1af7da12371cf
     resource: repo://libs/partners/openai/langchain_openai/data/_profiles.py
-generated: { by: "openwiki/0.5.0", at: "2026-09-21T08:30:16.745Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-22T08:27:06.345Z
+    at: 2026-09-24T08:28:08.003Z
 ---
 
 ## Overview
@@ -1152,3 +1152,6 @@ model = ChatOpenAI(
 - `/openwiki/model-initialization.md`: Factory function `init_chat_model()` for provider-agnostic model selection
 - `/openwiki/chat-models.md`: Core `BaseChatModel` interface and lifecycle
 - `/openwiki/messages.md`: Message types and content blocks (text, images, tool calls)
+- `/openwiki/partner-pattern.md`: Partner provider pattern and integration architecture
+- `/openwiki/streaming.md`: Streaming and callback integration across LangChain
+- `/openwiki/structured-output.md`: Structured output methods across providers

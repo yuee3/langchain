@@ -1,8 +1,8 @@
 ---
 type: "Reference"
-title: "Agent Middleware: Composable Request/Response Processing"
-description: "Document the middleware system for agents, including lifecycle hooks, HITL approval, error handling, retry logic, and middleware composition patterns for intercepting and modifying agent behavior."
-tags: [agent-middleware, request-interception, composition, error-handling, human-in-the-loop]
+title: "Middleware Architecture: wrap_model_call and State Hooks"
+description: "Explain middleware composition in agents: the wrap_model_call pattern, before/after hooks, state transformation, command accumulation, and integration into the agent graph."
+tags: [agent-middleware, request-interception, composition, error-handling, human-in-the-loop, wrap_model_call, state-hooks]
 sources:
   - id: openwiki-source-71e882e1ac9757ea8e959a7c
     resource: repo://libs/langchain_v1/langchain/agents/factory.py
@@ -14,10 +14,10 @@ sources:
     resource: repo://libs/langchain_v1/langchain/agents/middleware/tool_error.py
   - id: openwiki-source-03e8ca0eebe37feda8566793
     resource: repo://libs/langchain_v1/langchain/agents/middleware/types.py
-generated: { by: "openwiki/0.5.0", at: "2026-09-08T08:27:09.597Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-21T08:30:16.745Z
+    at: 2026-09-24T08:28:08.003Z
 ---
 
 ## Overview
@@ -161,11 +161,11 @@ class AgentMiddleware(Generic[StateT, ContextT, ResponseT]):
     """Stream transformer factories for streaming customization."""
 ```
 
-## Core Middleware Types and Patterns
+## Concrete Middleware Implementations
 
 ### Model Execution Middleware
 
-**ModelRetryMiddleware**: Automatically retries failed model calls with exponential backoff when transient errors (rate limits, API timeouts) occur. Supports custom exception filtering, custom failure handlers, and jitter to avoid thundering herd.
+**ModelRetryMiddleware**: Automatically retries failed model calls with exponential backoff when transient errors (rate limits, API timeouts) occur. Wraps `wrap_model_call` to implement retry logic with configurable exception filtering (tuple of exception types or callable predicate), custom failure handlers (`on_failure` behavior: `"continue"` for error message, `"error"` to re-raise, or custom callable), and optional jitter.
 
 ```python
 from langchain.agents.middleware import ModelRetryMiddleware
@@ -179,13 +179,13 @@ retry = ModelRetryMiddleware(
 )
 ```
 
-**ModelFallbackMiddleware**: Wraps the primary model with a fallback model (typically smaller/faster/cheaper) when the primary fails or to diversify model selection strategies.
+**ModelFallbackMiddleware**: Intercepts model call failures and attempts execution with fallback models, allowing fallback to smaller/faster/cheaper alternatives or diversified model selection strategies. Implemented via `wrap_model_call` to catch exceptions and retry with alternative model instances.
 
-**ModelCallLimitMiddleware**: Enforces a maximum number of model calls per agent invocation, preventing runaway loops.
+**ModelCallLimitMiddleware**: Enforces maximum model call counts (per-thread and per-run) via `before_model` hook, returning error AIMessage when limits are exceeded. Prevents runaway agent loops.
 
 ### Tool Execution Middleware
 
-**ToolErrorMiddleware**: Converts tool execution exceptions (e.g., API errors, validation failures) into error `ToolMessage` objects sent back to the model, allowing the model to recover or clarify. Opt-in by exception type.
+**ToolErrorMiddleware**: Intercepts `wrap_tool_call` to convert tool execution exceptions into error `ToolMessage` objects sent back to the model, allowing recovery or clarification. Opt-in by exception type via `on_error` callback (returns `str` or list of content blocks, or `None` to propagate). Does not retry; compose with `ToolRetryMiddleware` placed inner for retry semantics.
 
 ```python
 from langchain.agents.middleware import ToolErrorMiddleware
@@ -198,47 +198,43 @@ def on_error(exc: Exception, request: ToolCallRequest) -> str | None:
 middleware = ToolErrorMiddleware(on_error=on_error)
 ```
 
-**ToolRetryMiddleware**: Retries failed tool calls with configurable backoff and validation logic.
+**ToolRetryMiddleware**: Wraps `wrap_tool_call` to automatically retry failed tool calls with exponential backoff, configurable exception filtering, and custom failure handlers.
 
-**ToolCallLimitMiddleware**: Prevents infinite tool loops by enforcing a maximum number of tool calls.
+**ToolCallLimitMiddleware**: Enforces maximum tool call counts (per-thread, per-run, and per-tool) via `wrap_tool_call` hook, preventing infinite tool loops. Supports `exit_behavior`: `"continue"` (block exceeded tools with error messages), `"error"` (raise exception), or `"end"` (stop execution and inject explanatory messages).
 
 ### Control Flow & Approval Middleware
 
-**HumanInTheLoopMiddleware**: Pauses after model-requested tool calls and sends an interrupt with action summaries to a human reviewer. Uses the `after_model` hook to intercept AIMessage tool calls and send a HITLRequest for review. Supports approval, editing, rejection, or human-answered "respond" decision types. Tool calls are modified based on human feedback before execution.
-
-```python
-from langchain.agents.middleware import HumanInTheLoopMiddleware
-
-hitl = HumanInTheLoopMiddleware(
-    interrupt_on={
-        "delete_file": True,  # All decision types allowed
-        "search": {
-            "allowed_decisions": ["approve", "reject"],
-            "description": "Searching online databases",
-        },
-    }
-)
-```
-
-The middleware constructs `ActionRequest` objects (with name, args, and optional description) and `ReviewConfig` objects (with action name and allowed decision types), sends them as a `HITLRequest` via `langgraph.interrupt()`, receives decisions back, and processes them:
+**HumanInTheLoopMiddleware**: Pauses execution after model-requested tool calls and sends an interrupt with action summaries to a human reviewer via the `after_model` hook. Uses `langgraph.interrupt()` to send `HITLRequest` (with `ActionRequest` and `ReviewConfig` lists), receives decisions back, and processes them:
 - **approve**: Tool call proceeds unchanged
-- **edit**: Tool call arguments are revised by the human
-- **reject**: Tool call is blocked; a ToolMessage with user feedback is sent to the model instead
-- **respond**: Tool execution is skipped; a synthetic ToolMessage with the human's answer is returned to the model
+- **edit**: Tool arguments are revised by the human
+- **reject**: Tool call is blocked; a ToolMessage with user feedback is sent instead
+- **respond**: Tool execution is skipped; a synthetic ToolMessage with the human's answer is returned
 
-### Data Transformation & Privacy Middleware
+### Data Transformation & Redaction Middleware
 
-**PIIMiddleware**: Detects personally identifiable information (PII) in prompts, model responses, and tool outputs; optionally redacts or transforms it. Supports configurable detectors and redaction rules.
+**PIIMiddleware**: Detects personally identifiable information (PII) in prompts, model responses, and tool outputs; optionally redacts or transforms it. Supports configurable detectors and redaction rules via hooks.
 
-**ContextEditingMiddleware**: Allows dynamic modification of agent context (system message, available tools) during execution.
+**SummarizationMiddleware**: Summarizes long message histories when they exceed configurable thresholds (token count, message count) to keep context windows manageable without losing semantic content.
 
-**FileSearchMiddleware**: Integrates file search capabilities into the agent, retrieving relevant documents before model calls.
+### Context and Tool Discovery Middleware
+
+**ContextEditingMiddleware**: Allows dynamic modification of agent context (system message, available tools) during execution via state updates in hooks.
+
+**FilesystemFileSearchMiddleware**: Integrates file search capabilities into the agent, retrieving and injecting relevant documents into the model context before calls.
+
+**ProviderToolSearchMiddleware**: Dynamically searches provider-hosted tool repositories (e.g., API catalogs) and injects matching tools into the available tool set based on agent request or context.
+
+**LLMToolSelectorMiddleware**: Uses an LLM to select or rank appropriate tools for the current agent state, replacing static tool selection with learned disambiguation.
 
 ### System Tools Middleware
 
-**ShellToolMiddleware**: Provides controlled shell command execution with configurable resource limits, sandboxing (host, Docker, Codex), timeout enforcement, and output truncation.
+**ShellToolMiddleware**: Provides controlled shell command execution with configurable resource limits, sandboxing policies (host, Docker, Codex), timeout enforcement, and output truncation. Registers `shell_tool` as an additional available tool.
 
-**TodoListMiddleware**: Adds persistent todo list management capability.
+**TodoListMiddleware**: Adds persistent todo list management capability, allowing the agent to create, track, and update tasks across execution.
+
+**ToolEmulatorMiddleware** (LLMToolEmulator): Emulates missing tools using an LLM when actual tool implementations are unavailable, maintaining agent functionality with synthetic responses.
+
+**ToolSelectionMiddleware** (LLMToolSelectorMiddleware): Augments tool selection with LLM-based logic for more intelligent tool disambiguation and ranking.
 
 ## Request and Response Types
 
@@ -284,7 +280,12 @@ class ExtendedModelResponse(Generic[ResponseT]):
     command: Command[Any] | None = None
 ```
 
-Middleware can return `ExtendedModelResponse` to apply a command that modifies state after the model node completes. Commands are applied through state reducers, so messages in commands are **added** to existing messages (not replaced).
+Middleware can return `ExtendedModelResponse` from `wrap_model_call` to apply a command that modifies state after the model node completes. When multiple middleware return commands, they are accumulated in a list (inner-to-outer order) and applied sequentially to state.
+
+**Command Application and Reducer Semantics**: Commands are applied through LangGraph's state reducers. For the `messages` field (which uses `add_messages` reducer), messages in commands are **added alongside** the model response messages rather than replacing them. Non-reducer state fields in later commands overwrite earlier ones (outermost middleware's non-message fields win). This ensures:
+- Messages accumulate across all middleware Command returns
+- Non-message state fields follow "last writer wins" semantics (outermost wins)
+- Synchronization with the agent's normal reducer semantics
 
 ### ToolCallRequest
 
@@ -299,30 +300,67 @@ class ToolCallRequest:
     runtime: ToolRuntime  # Runtime context with tool-specific info
 ```
 
+### _ComposedExtendedModelResponse (Internal)
+
+```python
+@dataclass
+class _ComposedExtendedModelResponse(Generic[ResponseT]):
+    """Internal result from composed wrap_model_call middleware.
+    
+    Unlike ExtendedModelResponse (user-facing, single command), this holds the
+    full list of commands accumulated across all middleware layers during composition.
+    """
+    
+    model_response: ModelResponse[ResponseT]
+    """The underlying model response."""
+    
+    commands: list[Command[Any]] = field(default_factory=list)
+    """Commands accumulated from all middleware layers (inner-first, then outer)."""
+```
+
+This internal type is created during handler composition to normalize all possible return types (`ModelResponse`, `AIMessage`, `ExtendedModelResponse`) and accumulate commands across the middleware stack. User code returns `ExtendedModelResponse` (with optional single command); the factory's composition logic converts these to the internal `_ComposedExtendedModelResponse` and merges commands from all layers.
+
 ## Composition and Execution Order
 
-### Middleware Stack Execution
+### Middleware Stack Execution and Handler Chaining
 
-When middleware is registered as `[M1, M2, M3]`:
+When middleware is registered as `[M1, M2, M3]`, the factory's `_chain_model_call_handlers` function (and async equivalent) composes them into a single middleware stack via right-to-left composition:
+
+**Composition Logic**: The factory creates a composed handler where the first middleware in the list becomes the outermost layer. Each middleware's `wrap_model_call` (or `awrap_model_call`) handler wraps the previous ones:
+
+```
+M1(M2(M3(model)))
+```
 
 **Model Call Stack**:
-1. M1's `wrap_model_call` is entered first
+1. M1's `wrap_model_call` is entered first (outermost, highest priority)
 2. M1 calls handler → M2's `wrap_model_call` is entered
 3. M2 calls handler → M3's `wrap_model_call` is entered
 4. M3 calls handler → actual model execution
-5. M3 returns result to M2
-6. M2 can transform result and returns to M1
-7. M1 can transform result and returns to agent
+5. Model returns result to M3
+6. M3 can transform result and returns to M2
+7. M2 can transform result and returns to M1
+8. M1 can transform result and returns to agent
 
-**Result**: Innermost middleware (M3, closest to model) executes first; outermost (M1) sees and can override all inner results.
+**Result**: Innermost middleware (M3, closest to model) sees the raw result first; outermost (M1) sees and can override all inner results, giving it highest priority for final transformation.
 
-### State Updates and Commands
+### Command Accumulation in Handler Composition
 
-State updates from hooks are merged using LangGraph reducers. For the `messages` field (which uses `add_messages` reducer), updates accumulate rather than replace.
+When middleware returns `ExtendedModelResponse` with a `Command`, the composed handler normalizes all results to an internal `_ComposedExtendedModelResponse` structure that holds a list of commands (not a single command like `ExtendedModelResponse`).
 
-**Command Accumulation**: When middleware returns `ExtendedModelResponse` with `Command`, multiple commands are accumulated in a list (inner-to-outer order). The agent applies them sequentially after the model node completes.
+**Accumulation Order**: Commands are collected in **inner-to-outer order** as the stack unwinds:
+1. M3's handler executes and may return a command → added to accumulation list
+2. M2's handler executes and may return a command → appended to list
+3. M1's handler executes and may return a command → appended to list
+4. Final accumulated list: `[M3_command, M2_command, M1_command]` (inner first)
 
-**Reducer Semantics**: Non-reducer fields in later commands override earlier ones (outermost middleware wins). The `messages` field is special: reducer-based fields like `messages` accumulate through `add_messages`.
+The agent applies each command sequentially to state after the model node completes, using LangGraph's reducer semantics: `messages` fields accumulate via `add_messages`, non-reducer fields are overwritten by the last (outermost) command.
+
+### State Updates and Lifecycle Hooks
+
+State updates from lifecycle hooks (`before_agent`, `after_agent`, `before_model`, `after_model`) are merged using LangGraph reducers. For the `messages` field (which uses `add_messages` reducer), updates accumulate rather than replace.
+
+**Hook Execution Order**: Lifecycle hooks run in registration order (first middleware first) for `before_*` hooks, and reverse order for `after_*` hooks (last middleware first), allowing middleware to layer approval logic.
 
 ## Writing Custom Middleware
 
@@ -446,7 +484,30 @@ agent = create_agent(
 )
 ```
 
-**Composition Rule**: First in the list = outermost (highest priority for interception and response transformation). The factory collects middleware with wrap_model_call and awrap_model_call hooks, composes them into a single middleware stack via internal composition functions, establishing an order where the first middleware becomes the outermost layer.
+**Composition Rule**: First in the list = outermost (highest priority for interception and response transformation).
+
+### Handler Composition Process
+
+The factory performs the following steps:
+
+1. **Filter middleware by hook type**: Collects middleware with `wrap_model_call` and `awrap_model_call` implementations into separate lists.
+
+2. **Wrap handlers with tracing**: Each middleware's hook method is wrapped with `traceable()`, creating spans named `{middleware_name}.{hook_name}` with middleware-specific trace policies.
+
+3. **Compose sync handlers**: Sync handlers are passed to `_chain_model_call_handlers`, which right-to-left composes them using a `compose_two` helper:
+   - Each handler receives a `handler` callback that executes inner layers
+   - Commands from each layer are accumulated during unwinding
+   - Result is normalized to `_ComposedExtendedModelResponse` (internal type with command list)
+
+4. **Compose async handlers**: Async handlers are similarly composed via `_chain_async_model_call_handlers` using identical logic.
+
+5. **Install composed handler in graph**: The composed handler is integrated into the agent graph's model node, replacing direct model invocation with the stacked middleware.
+
+This design ensures that:
+- First middleware has final say on any response transformation
+- Commands accumulate without loss across all layers
+- Retries (inner middleware) don't reorder outer middleware behavior
+- Tracing and observability are per-middleware, not per-composition
 
 ## Tracing and Observability
 

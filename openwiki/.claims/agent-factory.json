@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:2c73027e4ac35b6bafe1b1e6da66b81ecdbdfdd7c36522eee378830a21a33af5",
+  "pageVersion": "sha256:b884817ceda0ebd2b5a05f4a400d6561c59dc9df4fe0376ae7b4bb7c8676bd3b",
   "claims": [
     {
       "id": "claim_0d3a898647bd4d1d9c08eb386919394b",
@@ -14,15 +14,19 @@
     },
     {
       "id": "claim_6d5428a93f294d5daf8a181cdd80d95f",
-      "statement": "The agent factory constructs a state machine with nodes: START → entry_node (before_agent or before_model or model) → loop_entry_node (before_model or model) → model → loop_exit_node (after_model or model) → [tools → loop_entry_node loop | exit_node] → END. The model is called, and if it returns tool calls, the tools node executes them and loops back to loop_entry_node unless a tool has return_direct=True, a structured output was produced, or no pending tool calls remain.",
+      "statement": "The agent factory constructs a state machine with nodes: START → entry_node (before_agent or before_model or model) → loop_entry_node (before_model or model) → model → loop_exit_node (after_model or model) → [conditional routing based on tool calls and execution status] → [tools node and loopback to loop_entry_node | exit_node] → END. The model is invoked via a RunnableCallable wrapping sync and async implementations. If the model returns tool calls, the tools node batches and executes them, then routes back to loop_entry_node unless a tool has return_direct=True, a structured output was produced, or no pending tool calls remain.",
       "evidence": [
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1647-L1743",
-          "version": "repo-lines-v1:sha256:e5d4752fd45563b2294e6d0e37f5aff8f5ced6fd3f7b62a204f170a82d433a0b:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyYjM1ZjA3NzlhODIwMDkzMTkzZDkzOGEzYWE0OTA1NmVjMjk2ODc2YjViM2E1YWQyZmU1MTA3MDMyMDEzZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQwOWY2YTA3YmVkNjMwN2Q0MjRjNjAxMzRjMzg3ZThiZjc1NDAxNGEzZjY0ZDk0NzQ3ZWFhZWRkZWViZTMxZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcxN2UwYTFmMTc1YWZhZGQ2MGViYzMwOGQzMGU4ZDQ3NGExZDVmZGIyMDFlZWZjZWM5NTk0NDRlM2RkZTQ1MDgifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1519-L1610",
+          "version": "repo-lines-v1:sha256:27d09ccc21169e1fa9f1ce3c7b864c49d074dcf5421e737dc5e3cefc32243eee:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNmM1NDhlYTczZDQ4MDYwYjczZTVkODUwYjE3MWRlNjVjZGZmNWUyYTdhMTg2ZTY0MmEwZWEzMWJmYmNhZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwNzE5M2JhNTk1MzA3ZjRmYzk2YTY5ZTZlY2MyMDc5ZmUwMmM4OTdlNGVjOGU3NTI0YmQzYzE3NmU0MmFhYjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3YWEzMjYzMTc0YzhiNjQ4ZTI4YmIxMWI5MmZkYTQ0MGUyMTlkZDIzNzU5ZjhmMTA4MTliZDk4MWQ0OWZhNzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5MjZmNGU5Y2ZmODIyNjdmZDg3MTEzN2E3ODg3MTY3NTVmYTg5ZTg1YTRkZGFjZTFiZWU0ZjY0NDRhZmJjYmQifQ"
         },
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L2004-L2043",
-          "version": "repo-lines-v1:sha256:600efbf881448e5cb5250d3ab7f403b67c281cc1963747fb68ba2b03ce762369:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2ZjMmJmMGMwNmFhZmMyOTNjNWE3MTkzYzc2MjFhMmQwYjIyOWZjNGE1MWZjZmRlOGUwYmRiYzUwNjUyMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0NDc5Y2NlZDY2YWZmYzNjMDk5ODhiNTAzODY1NmNhNTJhOWY5YTQ0NTJjMWE0ZjZlZTQ1ZDVlYzViNDU3YTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU4ZTE2NjY1MDcwYTE2MzkwYzYyZjliN2NkNWE2ZWQ5ZmI2ODZhODE2ZGNkNjAwMjBlNTNkMzhmNjAxYzUxYjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzYTAxMjkzY2I3Njk4NDI1NTk0MzViYzQ2ZGZjNTFhYTBhZmNlMWEzYjA0NzE0ZDNiMTdlMzA2YzdiMjQxZTAifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1647-L1743",
+          "version": "repo-lines-v1:sha256:d5d0251789aae546e2316e8828de3e3e0d750130cd88b25f2f10330621ea878c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4MWM5NjM1YTk5OWY1ZGU0NzIzZTdlOWI5ZmQ2ZTRmMjM4ZGVmNzdhN2JmMTllNzBhZTVjNjY3NWI2MTE3ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlZDgzMTNhZjc3NGYxNmY4N2EwMTgzNjBmNDBhNjI0YjY4NWQ5Y2Q4OTE4YzZlMTRlMTFmYzk3YmE3NmQ3OTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRhNTAzZDIxN2NlNWE1MDZlNzRiYzBkYjdkNmNmYTFlMWM5OGEwNmIxNDQxOTY1MWVhNzBmOGM1Zjk3MTI0YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzMGRjNmEwZTJkZmUwZTZjM2JmOTJjMGJmMzkwNjU2MmNiOTg4NzE0MTA2MDUzYmRjYmRiYzg3YmNkMjA3NzkifQ"
+        },
+        {
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1990-L2041",
+          "version": "repo-lines-v1:sha256:90f3484e1db603ca91961271ffe2716ec68518de6b784495775f9e91208d9a21:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MTk5NmZkM2IyMzMzY2I4NjM2ZDA0ODRiZjE5M2FiMTBkM2EzMDIyYTEzNjVjYjUyMWM1OGViZjBlZDU5NWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MGIxYjRhOGUzZDA5NTFjMjljOGQ5ZWIxMDA1YmI4ZjJlNTRlMWQyMmJmNWJjNzkzYzdiNWVkODk0NzJkZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlY2FhN2I3NjczYjkzMmU5YTQ1M2U2ZGJlNWFiN2E2NTQ4ZTkwYzFkMjdiZWQ0NWI2ZDU2NTUwODNmZTg1NmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1YzliZTg2ODgxZmU3ODAyNTYwNGNjZDUxZjUzMTk5OTIwYTc1ODFkZjE4ZDBiMTJkM2JhZTFkYmJlM2ZmMzMifQ"
         }
       ]
     },
@@ -112,15 +116,19 @@
     },
     {
       "id": "claim_0acc06eb9c7d45e8b886f43ee4a296b7",
-      "statement": "Tools are registered at agent creation from BaseTool instances, raw callables (auto-wrapped), or dict-based provider tools. The ToolNode batches pending tool calls and executes them. Conditional edges route back to loop_entry_node unless all executed tools have return_direct=True, a structured output tool was called, or no pending tool calls remain.",
+      "statement": "Tools are registered at agent creation from BaseTool instances, raw callables (auto-wrapped), or dict-based provider tools. The ToolNode batches pending tool calls and executes them. Conditional edges (via _make_tools_to_model_edge and _make_model_to_tools_edge) route back to loop_entry_node unless all executed tools have return_direct=True, a structured output tool was called, or no pending tool calls remain.",
       "evidence": [
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1077-L1096",
-          "version": "repo-lines-v1:sha256:f51ce8995c6e7b5b534cc0b32939c94c0739cfdae2e1bac61c23707201372310:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxN2EyMDA1ODk0MzI1ODA1MmVlOTkzNDZjZmQwNGI0OTVmOWM4ZGI5NDMyMjMzYTk3ZWMxNWI5ZGM3ZDZhOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiZmE4NzY1YjhjZDgxOWNlZDI4ODVkMzFmMTNkNTUwMGUwYWJiMjdhZGM1M2FlOWM3ZDE5YTJmZTNhNDFkZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4YzM2ZmUxMTg0NTI5MDAyNThmZjEwNWEyY2M2NjNlZWJlOWFhN2YxN2YwYzM0NTI3ZWU5NWM0ODdmYTQ4YWQifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1077-L1157",
+          "version": "repo-lines-v1:sha256:ce49536b06123d5ab30c6181b88a4521026bbf5494307f9ef2609b690a123729:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkZjZmYzU5OGM3N2QxZTRmN2ZlYzA5OWQxNjA3ZjgxMThkZTBhNDE3ZDlkZGI3ZmVmMWEzYjZmZmM3MTQ5YzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1NDExNDQyZWM0YmMzYjhmMjA5ZGExMTQxZWRiNDFmMTY3MzE3N2NiMGNhYTIwMThmM2NjYTFhZjc5ZGY5OGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmYjkyOGE2NDI3OGE2ZDRiMmM2ZGYzMDVjMjhiYTg3OTVlMzFhZDk5N2NjZjYzYmE4ZjQwZDQ2NzM2ODhjOWQifQ"
         },
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L2004-L2043",
-          "version": "repo-lines-v1:sha256:600efbf881448e5cb5250d3ab7f403b67c281cc1963747fb68ba2b03ce762369:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2ZjMmJmMGMwNmFhZmMyOTNjNWE3MTkzYzc2MjFhMmQwYjIyOWZjNGE1MWZjZmRlOGUwYmRiYzUwNjUyMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0NDc5Y2NlZDY2YWZmYzNjMDk5ODhiNTAzODY1NmNhNTJhOWY5YTQ0NTJjMWE0ZjZlZTQ1ZDVlYzViNDU3YTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU4ZTE2NjY1MDcwYTE2MzkwYzYyZjliN2NkNWE2ZWQ5ZmI2ODZhODE2ZGNkNjAwMjBlNTNkMzhmNjAxYzUxYjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzYTAxMjkzY2I3Njk4NDI1NTk0MzViYzQ2ZGZjNTFhYTBhZmNlMWEzYjA0NzE0ZDNiMTdlMzA2YzdiMjQxZTAifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1990-L2041",
+          "version": "repo-lines-v1:sha256:90f3484e1db603ca91961271ffe2716ec68518de6b784495775f9e91208d9a21:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MTk5NmZkM2IyMzMzY2I4NjM2ZDA0ODRiZjE5M2FiMTBkM2EzMDIyYTEzNjVjYjUyMWM1OGViZjBlZDU5NWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MGIxYjRhOGUzZDA5NTFjMjljOGQ5ZWIxMDA1YmI4ZjJlNTRlMWQyMmJmNWJjNzkzYzdiNWVkODk0NzJkZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlY2FhN2I3NjczYjkzMmU5YTQ1M2U2ZGJlNWFiN2E2NTQ4ZTkwYzFkMjdiZWQ0NWI2ZDU2NTUwODNmZTg1NmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1YzliZTg2ODgxZmU3ODAyNTYwNGNjZDUxZjUzMTk5OTIwYTc1ODFkZjE4ZDBiMTJkM2JhZTFkYmJlM2ZmMzMifQ"
+        },
+        {
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L2071-L2110",
+          "version": "repo-lines-v1:sha256:7f40311e71b8cf9998ebd15c56929ee7ea8180cb6fe725a7b4b4ebfb917603a1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2ZjMmJmMGMwNmFhZmMyOTNjNWE3MTkzYzc2MjFhMmQwYjIyOWZjNGE1MWZjZmRlOGUwYmRiYzUwNjUyMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0NDc5Y2NlZDY2YWZmYzNjMDk5ODhiNTAzODY1NmNhNTJhOWY5YTQ0NTJjMWE0ZjZlZTQ1ZDVlYzViNDU3YTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU4ZTE2NjY1MDcwYTE2MzkwYzYyZjliN2NkNWE2ZWQ5ZmI2ODZhODE2ZGNkNjAwMjBlNTNkMzhmNjAxYzUxYjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzYTAxMjkzY2I3Njk4NDI1NTk0MzViYzQ2ZGZjNTFhYTBhZmNlMWEzYjA0NzE0ZDNiMTdlMzA2YzdiMjQxZTAifQ"
         }
       ]
     },
@@ -140,15 +148,15 @@
     },
     {
       "id": "claim_72ba238188fd4fa69335bfdd7ea1e022",
-      "statement": "wrap_model_call handlers can return ExtendedModelResponse with optional Command to inject additional state updates (e.g., synthetic ToolMessages) alongside the model response. Commands are accumulated inner-first across middleware layers and applied via the graph's reducers.",
+      "statement": "wrap_model_call handlers can return ExtendedModelResponse with optional Command to inject additional state updates (e.g., synthetic ToolMessages) alongside the model response. Commands are accumulated inner-first across middleware layers via _chain_model_call_handlers and applied via _build_commands, which uses the graph's reducers to merge them.",
       "evidence": [
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L213-L260",
-          "version": "repo-lines-v1:sha256:dd556027d5be455837c96fee074d9d469dc9ff5f16187ca7f30054aedcf185d2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YzgzN2QxZjhjOGZmMTQ2ZGFkODY5ZTlhZDhkMGNjYzY2YTA0Y2JhNjVkNzBhYTM5ZDUxMDAwNTQzMzFiNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyNmQ2OGQ5YjUyMjFlYjU5NGVmOGJjN2JmZTNhYzVhNjM2ZjA2MjlmNmU1ZGNmNmE5NWEyMGZmMThhZDdmMzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiN2UyMTk1NWE5MGNjNjVhNmY1YmQxNTE2ODEyYThmYTQzYmNmZDhiZWJiMzMwNDJiMzg4NDZjMmUzNzYwNzQifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L221-L277",
+          "version": "repo-lines-v1:sha256:6bb49e7a7e6403834213953a9111549f15c00024566792a43dc06e6452e013b7:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YzgzN2QxZjhjOGZmMTQ2ZGFkODY5ZTlhZDhkMGNjYzY2YTA0Y2JhNjVkNzBhYTM5ZDUxMDAwNTQzMzFiNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyNmQ2OGQ5YjUyMjFlYjU5NGVmOGJjN2JmZTNhYzVhNjM2ZjA2MjlmNmU1ZGNmNmE5NWEyMGZmMThhZDdmMzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiN2UyMTk1NWE5MGNjNjVhNmY1YmQxNTE2ODEyYThmYTQzYmNmZDhiZWJiMzMwNDJiMzg4NDZjMmUzNzYwNzQifQ"
         },
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L68-L81",
-          "version": "repo-lines-v1:sha256:6864d6081648a4266186d7bfa2a48ebc28536468c489f27a9bad34992e8d99a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3NjlkZjExY2MyYWRmMzc5MzdjZGEzYTZhM2ZkZGY3MGY2ZWVmZWI1N2I0ZjVjMzMzNDEyNDA2OTI0Zjg3MzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjMWYwMmZkN2VjMWQ0NjJjMGNiODE4Yjk0OGZmZTRmNzE1YjJjMmM0MzI2MzBjMjMyZGZlMzRkNDI3NDNmYTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5N2YxZTk4NWMxZjZkMGZhOGM2NDhjMzNiMjAxMzVkN2YwOTcwYjBkM2JjOTNmNWU4Y2YzMDFlM2NmZDQ3NTQifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L280-L360",
+          "version": "repo-lines-v1:sha256:a7c406143dddb088746f2d7ae246e807906907214849ab6eb7d49188bda3ccbf:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1Y2IwNmM0MzdmOTk3ODhiZDVjOGM4MDY5MjU0MTI5YmVlN2ExNGYzMzc2ZTFjZWY2MTczYWUyMGE3Y2YyZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4YjE2YTdhZjFkZDFlYzI4OTY3MWRhMWU5MmExY2UzN2I4MTA0YWFlYjZlYjU3MzY1NmU4NWVhMzU0YTNhY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0NjIzNmYwMWVhNDg2MTZkMTJmNjBkY2ZiZGM4YTFlYjkzMTc2Zjc0MzI1MzcxMTM0MzMyMmYyMTNiYzdlZTQifQ"
         },
         {
           "resource": "repo://libs/langchain_v1/langchain/agents/middleware/types.py#L290-L312",
@@ -210,21 +218,45 @@
     },
     {
       "id": "claim_9668397eb706496d80edbc2cb42f07b9",
-      "statement": "The factory creates a RunnableCallable wrapping both sync (model_node) and async (amodel_node) implementations for the model. At runtime, the appropriate variant is invoked based on context. Middleware can implement only sync, only async, or both; mismatches raise NotImplementedError.",
+      "statement": "The factory creates a RunnableCallable for the model node wrapping both sync (model_node) and async (amodel_node) implementations. At runtime, the appropriate variant is invoked based on context. Middleware can implement only sync, only async, or both; mismatches raise NotImplementedError.",
       "evidence": [
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1441-L1540",
-          "version": "repo-lines-v1:sha256:532e4c0266711b50e0c35f598eeed855abac267da25c4583a95bd685d9ec2b5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyM2Y5MDJjMTQyODdhYWM5MGI0YzRkMDgyYzhiNDk4MjIwNzA0NzZjMmM1NDI5YzFkNWZkNTFkNTcwM2FhNjdlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1OTA5YTUzYTYxOGQwMjhlMWQzMDAwYzBhN2FiY2VlY2JlNWZiMzdmNGU1MTFlZmU0NjY0M2ZhZDZlNjY4NzJmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyMGE3OTExMzk4MDg1ZmMxOTc0MjY3MGM1Mjg4NmE2NWY3Y2JmMzQwYTAyM2VjZDM5OTJjNTM0MGE2ZDA4OGZjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIyNDAxMjM1YTMwZWU1MDI2MmY2ZDdmMWJjZWVjMmI4M2RhODA3MTczMjJjM2IxZTM1ZDFkMmZiYjM3Zjg3M2EyIn0"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1519-L1610",
+          "version": "repo-lines-v1:sha256:27d09ccc21169e1fa9f1ce3c7b864c49d074dcf5421e737dc5e3cefc32243eee:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNmM1NDhlYTczZDQ4MDYwYjczZTVkODUwYjE3MWRlNjVjZGZmNWUyYTdhMTg2ZTY0MmEwZWEzMWJmYmNhZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwNzE5M2JhNTk1MzA3ZjRmYzk2YTY5ZTZlY2MyMDc5ZmUwMmM4OTdlNGVjOGU3NTI0YmQzYzE3NmU0MmFhYjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3YWEzMjYzMTc0YzhiNjQ4ZTI4YmIxMWI5MmZkYTQ0MGUyMTlkZDIzNzU5ZjhmMTA4MTliZDk4MWQ0OWZhNzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5MjZmNGU5Y2ZmODIyNjdmZDg3MTEzN2E3ODg3MTY3NTVmYTg5ZTg1YTRkZGFjZTFiZWU0ZjY0NDRhZmJjYmQifQ"
         },
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1543-L1543",
-          "version": "repo-lines-v1:sha256:707193ba595307f4fc96a69e6ecc2079fe02c897e4ec8e7524bd3c176e42aab6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzA3MTkzYmE1OTUzMDdmNGZjOTZhNjllNmVjYzIwNzlmZTAyYzg5N2U0ZWM4ZTc1MjRiZDNjMTc2ZTQyYWFiNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzA3MTkzYmE1OTUzMDdmNGZjOTZhNjllNmVjYzIwNzlmZTAyYzg5N2U0ZWM4ZTc1MjRiZDNjMTc2ZTQyYWFiNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGY0NmQ4NTdiNGQ0YzU0YjdlMjc5ZDFhYjJlMDBlNzZkNWNlZjdmNWU2ZGY1NDVjNmU1ODY3N2RhNWMxNmI3OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTkyNmY0ZTljZmY4MjI2N2ZkODcxMTM3YTc4ODcxNjc1NWZhODllODVhNGRkYWNlMWJlZTRmNjQ0NGFmYmNiZCJ9"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1623-L1634",
+          "version": "repo-lines-v1:sha256:174378a0ea6558fe516f6574161a678955eacbf4e53e301338d2ec3c8c2a3454:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4MWM5NjM1YTk5OWY1ZGU0NzIzZTdlOWI5ZmQ2ZTRmMjM4ZGVmNzdhN2JmMTllNzBhZTVjNjY3NWI2MTE3ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3OWU0YjQyNDYxOWFiZWExM2NjZWEwMmMwNDBlNzM3MTc4ODFkMmI2OGQ5NjI3ZTlkYTdjYWUxOTczNTA0MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc3Y2MzODUzMmQwNjQ0MzQ3OGYxZThlYmNkOTAwODM4NDhjZTMwMWYyZmFiY2QwMDEwMmMwYTdiOTNiNjgzZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzYmU1YzZhZjVmYTViNDk0ZjQ5ZDc1MGVjMTEzZjEzNjZiOGQ1MmQ3NmNjMzcyNTRiY2RkYmU4MGI2MTU4M2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7d5e7bee1af948e6b21e1f6999acee11",
+      "statement": "Agents created with a name parameter become eligible for nesting within parent agents. When a named subagent is invoked from a parent agent via tool dispatch, the SubagentTransformer detects the boundary via the lc_agent_name field and surfaces a typed SubagentRunStream handle on the parent's run.subagents list, enabling full observability of the subagent execution.",
+      "evidence": [
+        {
+          "resource": "repo://libs/langchain_v1/langchain/agents/_subagent_transformer.py#L1-L82",
+          "version": "repo-lines-v1:sha256:7a22ce25db41f0ca1e8e362100824869d2c1d4892d860c8c4654f40b29abd170:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MDNjNjdlMmM3Mjk0OTc1NWFhOWFhOTNiMTY5YjNiYjBlNzY0OGY4YjBiOTFlMmQ5NTgxYTdiYzQ1ODAyNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlOWE4NmNmN2Y2NmRmMWRjNTU5ODgxNzE4Yjk3MzYyZDQwNjU0NDg3MTc2NGUxODIzODNjZGZjYmE4ZGI5Y2YifQ"
+        },
+        {
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L997-L1001",
+          "version": "repo-lines-v1:sha256:de58716e32ea4b691d4d3efc75d5ae8c995ae6e1f443987676e8e2a39bf57faa:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTcxYzlhMmMwYTc1Yzg2NWJhY2RiNDY3Zjc4ODRjYTVkODFjMzMxYmEwODI5ZmI2YjJlOGMzNjViNmQzY2JlYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmU4YWQ4NmQwNTRlODNmNzAzZmM2ZjY4MGJlNjMwMzU1NzJiOGYyYTc5MWZkMzcxMDg3OWExYzUxZGFiYjlkNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWM4ZWU5Y2M2NTYxNzliMDQ3NDc2NGEwN2UyNTQ1YWY2OTRiNzMxYmM3Y2MzNTY2MzE3MDMyODE2MTk5ZTkzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWQ4ZWQxNGE3NWViMWQ3YjNkOWIwOTUxMWNjM2U3ZTRjOTBkNGMxYmYzZjdmNWFmY2RhZGUwN2NjYTIzZTY2NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_adf5054af6564ff5873bf753be0b2542",
+      "statement": "The create_agent name parameter serves dual purposes: (1) identifies the graph for LangSmith tracing and subgraph imports, and (2) when set, enables the agent to be added to another graph as a nested subagent with automatic parent-to-subagent and subagent-to-parent message routing through the SubagentTransformer.",
+      "evidence": [
+        {
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L997-L1001",
+          "version": "repo-lines-v1:sha256:de58716e32ea4b691d4d3efc75d5ae8c995ae6e1f443987676e8e2a39bf57faa:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTcxYzlhMmMwYTc1Yzg2NWJhY2RiNDY3Zjc4ODRjYTVkODFjMzMxYmEwODI5ZmI2YjJlOGMzNjViNmQzY2JlYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmU4YWQ4NmQwNTRlODNmNzAzZmM2ZjY4MGJlNjMwMzU1NzJiOGYyYTc5MWZkMzcxMDg3OWExYzUxZGFiYjlkNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWM4ZWU5Y2M2NTYxNzliMDQ3NDc2NGEwN2UyNTQ1YWY2OTRiNzMxYmM3Y2MzNTY2MzE3MDMyODE2MTk5ZTkzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWQ4ZWQxNGE3NWViMWQ3YjNkOWIwOTUxMWNjM2U3ZTRjOTBkNGMxYmYzZjdmNWFmY2RhZGUwN2NjYTIzZTY2NyJ9"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-21T08:30:16.745Z"
+    "at": "2026-09-24T08:28:08.003Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:3fc2f1b0796f339129190c568b93de04bf6a248be8c1b4328a0030d5264642da",
+  "pageVersion": "sha256:a444334347f2b8f323241426b38c3fe61cb03f07bfda7b3b67de7c6539b5fec2",
   "claims": [
     {
       "id": "claim_150a5dc8a9c14fc19c3597a746649ba0",
@@ -171,12 +171,16 @@
       "statement": "Structured response is stored in agent state's structured_response field alongside messages; field is cleared on error retry to avoid stale checkpointed values; raw schemas are passed to middleware via ModelRequest.response_format.",
       "evidence": [
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1219-L1276",
-          "version": "repo-lines-v1:sha256:2e1c8d13f173b0360296f6ff989dfdc681e2c292a53ec116d98d9845e6b2b630:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZjcwYWU2MjNjMmI5NWNjYzNjNTcxYmY4ZWUxYmE1ZWM5NmNmZjQzOTk2OTk2NGRmOGM4MjMwNTY1NzU5ZDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYjMzOWMxN2Q0Y2M1NGU3MGM0ZmNmZWNiNjExYmI5ZTdkMzYzZjI1YjE4ZTA5MjNhMWQzMDZjYzk1OTI0ZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxMzdjYjlhZDVlNGY3Y2FhZGFkMjU1MTVhZmEwY2QxMWVjYmVhMGZjMmI1YTZjZTE1ODc0M2I4NWFiYzM1Y2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxNzVlNWQ2YTFlYjM2OTBmYzQ5NTg1MTZmODlmMjJjYTIxNWZlNGEzZjgyYjg2YWZhNTVhNzRiZjE1YWQ0M2IifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1245-L1347",
+          "version": "repo-lines-v1:sha256:42ca8ea665535b713f1ff2651387e04941608ec55a949c4f1cf00b8febc38c66:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyYmRmNGQzMWNjY2QxYzBjYmY1ZWRkZjNlZWMxNDZlNDUwYjExMTdhNjJmZGExZDlhMzBkYTBjMzI2YTI2YTJiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyYzkyOTk3NTc2NmYwNzM5NTNlNTA5YzIyYjI0ODBiNjE0NjQzN2FhZmIzMmYyOWJkNTJjMGM4M2E1Y2ViZjU5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmZjc4ZDc2OWUzNzBlMjA1NmU3MmI2YTU1OTkzMWIzYzVhODNjMGE2YWI2YWFmYjhmZTkzOGE3NTY3Y2Y4ZDNkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjgxNDM1OTIzMTAwNThkODUzZTY3NzM5YTExNzY2NTkyNjdhODM1MTIxYTc0OWI5Nzk1ODU2M2UyZWU3MmVlIn0"
         },
         {
-          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L226-L242",
-          "version": "repo-lines-v1:sha256:606c549102e85beab88d502650be6ab116496d3959d6cff46a7d1b0520fdc7d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1ZmNmMDEwNDNmMTVhNGRhZGJkNjI5ODdiOWM3OWI4ODg1MjQzNDI2ZWY5ZDBiMzNjMzk0OWVlMzRlYzAyYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMDVmOGU1OGIxNGViNTlkNzMxNTJhNGM1MGI1ZTg2OTBmZmNjNDcxOGQxYmQzZWUyYTU0Y2ZhYjhkNzc1MDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzNjg0OWY2ZTA0YTdiZGI3NTc4MTM2YTJkOWU0N2E2YjBiZjMxYmMxNTczMGFhODM4NmJjOWExNDIwZWFiYjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5YTdjY2ZmMjEyMmJiZmMxZDEwOTZjZTZkODFlMDY4NDY0NjM0ZDA0MjA2OTBlYzVhZTE5YTFmMGYxOWNkMGIifQ"
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L1522-L1526",
+          "version": "repo-lines-v1:sha256:ccb592d1e32cd0a9a6fc18c0a0d9384f86440b7e58363692c45a38ca472ef7f1:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzkwN2M0OWM0OTE5MGU1MzE3ZmU1ZTIxMGJmYzU3ZDg0NDY0YTFmYTZiNzMxZjA1Nzg2YTQ4NGMyMjI0MTA1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjc5ZTRjMWY3YWIyOTAxNGI1NWNhOGRlZDA2MzViZDFjMmFjMjQ5ZDQ5N2QwM2IzOTIwYzZjZDZjM2MyMGFjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDE2OTRiYmZkOWRjNmFkZGE2ZmQ2ZmY3YTJhNWMzMThlYjIxNDdiYjQ1N2ZiM2ZkN2ExNTY4YjNhYjQ1Mzg4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjEyMjNmYWE5YzE3YzBmZTAxZDVjMGMzMzI3M2Y0MTZiMzA2YzhjZDBhMmI3YjEwY2YxN2E4ZmYyMDVmNjgxMyJ9"
+        },
+        {
+          "resource": "repo://libs/langchain_v1/langchain/agents/factory.py#L254-L259",
+          "version": "repo-lines-v1:sha256:719004039fb82f50cd48d8438eeaa6a19c221f4c060eea86e912e9ffcf0009a0:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNjNjM0YjViNzg5M2E4OTBlOGI3NDM1NDYwODZhYTBjYjBiOThkYjI2ODI3YjhhNTMyMDlkZjgyZTdiY2RjZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDAwNWY4ZTU4YjE0ZWI1OWQ3MzE1MmE0YzUwYjVlODY5MGZmY2M0NzE4ZDFiZDNlZTJhNTRjZmFiOGQ3NzUwMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDAzMzRmYzIxNDAyMjE3N2IzOGQ0MTU0NTI5MWYxODc4YzMwNTU2MjcwOWI1ZjZlZjllMjg3OWNjOTZkMzA1ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODlhN2NjZmYyMTIyYmJmYzFkMTA5NmNlNmQ4MWUwNjg0NjQ2MzRkMDQyMDY5MGVjNWFlMTlhMWYwZjE5Y2QwYiJ9"
         }
       ]
     },
@@ -197,6 +201,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-21T08:30:16.745Z"
+    "at": "2026-09-24T08:28:08.003Z"
   }
 }

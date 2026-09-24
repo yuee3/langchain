@@ -1,7 +1,11 @@
 ---
 type: "Reference"
 title: "CI/CD Workflows: GitHub Actions and Release Process"
-openwiki_generated: true
+description: "Comprehensive guide to GitHub Actions workflows that automate testing, linting, integration testing, and release management in the LangChain monorepo, including change detection, multi-version testing, and pre-release validation."
+tags: ["ci-cd", "github-actions", "testing", "release-management", "automation"]
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-24T08:28:08.003Z
 sources:
   - id: openwiki-source-34e57b5a3a0c875639ab72a7
     resource: repo://.github/scripts/check_diff.py
@@ -27,12 +31,8 @@ sources:
     resource: repo://.github/workflows/pr_labeler.yml
   - id: openwiki-source-12805fbf767dc2a3e238645e
     resource: repo://.github/workflows/pr_lint.yml
-generated: { by: "openwiki/0.5.0", at: "2026-09-21T08:30:16.745Z" }
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-21T08:30:16.745Z
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
 ---
-
 
 # CI/CD Workflows: GitHub Actions and Release Process
 

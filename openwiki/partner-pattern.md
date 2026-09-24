@@ -20,6 +20,8 @@ sources:
     resource: repo://libs/partners/anthropic/langchain_anthropic/data/profile_augmentations.toml
   - id: openwiki-source-04e3ac4f56ff2adb2b02de7d
     resource: repo://libs/partners/anthropic/pyproject.toml
+  - id: openwiki-source-14a56fa2bbfe35bcf196725a
+    resource: repo://libs/partners/deepseek/langchain_deepseek/chat_models.py
   - id: openwiki-source-8641a971af4f11b852966d77
     resource: repo://libs/partners/openai/langchain_openai/chat_models/__init__.py
   - id: openwiki-source-3bc725a9a39d534be6f46d18
@@ -34,17 +36,21 @@ sources:
     resource: repo://libs/partners/openai/tests/unit_tests/chat_models/test_base_standard.py
   - id: openwiki-source-4065d8687d2708ee826c7818
     resource: repo://libs/partners/openai/tests/unit_tests/chat_models/test_responses_standard.py
+  - id: openwiki-source-8392b428034fa3ef7bc8a332
+    resource: repo://libs/partners/openrouter/langchain_openrouter/chat_models.py
+  - id: openwiki-source-7249413b496841f0a738c529
+    resource: repo://libs/partners/xai/langchain_xai/chat_models.py
   - id: openwiki-source-025cad4ae99967890152b7e0
     resource: repo://libs/standard-tests/README.md
-generated: { by: "openwiki/0.5.0", at: "2026-09-22T08:27:06.345Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-22T08:27:06.345Z
+    at: 2026-09-24T08:28:08.003Z
 ---
 
 ## Overview
 
-This guide documents the integration pattern for adding a new chat model provider (LLM service) to the LangChain monorepo. A **provider** represents an LLM service (e.g., OpenAI, Anthropic, Mistral) with its own client library, model lineup, and API conventions. Each provider integration lives in its own package under `/libs/partners/` and provides a `ChatModel` subclass bridging LangChain's message abstraction to the provider's API.
+This guide documents the integration pattern for adding a new chat model provider (LLM service) to the LangChain monorepo. A **provider** represents an LLM service (e.g., OpenAI, Anthropic, Mistral, DeepSeek, xAI) with its own client library, model lineup, and API conventions. Each provider integration lives in its own package under `/libs/partners/` and provides a `ChatModel` subclass bridging LangChain's message abstraction to the provider's API.
 
 The integration process involves:
 
@@ -139,7 +145,7 @@ constraint-dependencies = ["urllib3>=2.6.3", "pygments>=2.20.0"]
 ```
 
 **Key patterns:**
-- **Lock provider SDK versions** to prevent breaking API changes (e.g., `openai>=2.45.0,<4.0.0`)
+- **Lock provider SDK versions** to prevent breaking API changes (e.g., `openai>=2.45.0,<4.0.0`, `anthropic>=0.120.0,<2.0.0`)
 - **Add version constraints to all test dependencies** for reproducibility
 - **Use `[tool.uv.sources]`** to reference local LangChain packages in monorepo
 - **Separate integration test dependencies** in a dedicated group (only needed in CI)
@@ -592,6 +598,8 @@ model = init_chat_model("unique-prefix-model-id")
 | `gpt-`, `o1`, `o3` | `openai` |
 | `claude` | `anthropic` |
 | `mistral`, `mixtral` | `mistralai` |
+| `deepseek` | `deepseek` |
+| `grok` | `xai` |
 
 Add your provider's prefixes to the inference function to enable bare model name registration.
 
@@ -602,6 +610,33 @@ Add your provider's prefixes to the inference function to enable bare model name
 ### Profile Structure and Data Source
 
 Profiles are dictionaries stored in `data/_profiles.py` and generated from the open-source [models.dev](https://github.com/sst/models.dev) project via the `langchain-model-profiles` CLI tool.
+
+**The _PROFILES registry pattern** (reference: `repo://libs/partners/anthropic/langchain_anthropic/chat_models.py#L94-L105`):
+
+1. **Auto-generated `_profiles.py`** contains a module-level `_PROFILES` dictionary mapping model identifiers to capability metadata
+2. **Imported and cast** to `ModelProfileRegistry` for type safety
+3. **Wrapped in provider function** `_get_default_model_profile()` that returns a copy of the profile or empty dict if not found
+4. **Passed to `BaseChatModel`** via the `profile` parameter during instantiation
+
+```python
+from langchain_anthropic.data._profiles import _PROFILES
+from langchain_core.language_models import ModelProfileRegistry
+
+_MODEL_PROFILES = cast(ModelProfileRegistry, _PROFILES)
+
+def _get_default_model_profile(model_name: str) -> ModelProfile:
+    """Get the default profile for a model."""
+    default = _MODEL_PROFILES.get(model_name)
+    if default:
+        return default.copy()
+    return {}
+
+# Use in ChatProviderModel.__init__:
+class ChatProviderModel(BaseChatModel):
+    def __init__(self, model: str, **kwargs):
+        profile = _get_default_model_profile(model)
+        super().__init__(model=model, profile=profile, **kwargs)
+```
 
 **Sample profile** (reference: `repo://libs/partners/anthropic/langchain_anthropic/data/_profiles.py#L18-L52`):
 
@@ -642,7 +677,7 @@ This downloads the latest model data, merges provider-specific augmentations fro
 
 ### Provider Augmentations
 
-Create `data/profile_augmentations.toml` for LangChain-specific capability overrides (reference: `repo://libs/partners/anthropic/langchain_anthropic/data/profile_augmentations.toml`):
+Create `data/profile_augmentations.toml` for LangChain-specific capability overrides (reference: `repo://libs/partners/anthropic/langchain_anthropic/data/profile_augmentations.toml#L1-L50`):
 
 ```toml
 provider = "provider_name"
@@ -791,7 +826,7 @@ Integration tests for advanced modes should verify:
 
 Some providers (e.g., OpenAI) offer advanced response APIs alongside standard chat completions. These APIs typically support enhanced features like streaming tool execution, reasoning outputs, and structured response formats.
 
-**Example: OpenAI Responses API** (reference: `/openwiki/openai-provider.md`, `repo://libs/partners/openai/tests/integration_tests/chat_models/test_responses_api.py`):
+**Example: OpenAI Responses API** (reference: `/openwiki/openai-provider.md`, `repo://libs/partners/openai/tests/integration_tests/chat_models/test_responses_api.py#L1-L120`):
 
 The `ChatOpenAI` provider supports an optional `use_responses_api` parameter to switch between the Chat Completions API and the Responses API:
 
@@ -872,16 +907,20 @@ def _generate(self, messages, **kwargs):
     # ... rest of generation logic
 ```
 
-## 10. Example: OpenAI Provider Reference
+## 10. Example Reference Implementations
 
-The OpenAI provider (`repo://libs/partners/openai/langchain_openai/chat_models/base.py`) is a comprehensive reference implementation demonstrating:
+The LangChain monorepo contains several well-maintained reference implementations demonstrating different integration patterns:
 
-- **Message conversion**: Support for images, function calling, reasoning content
-- **Streaming**: Proper delta extraction and token counting
-- **Tool calling**: Convert to OpenAI format, parse structured responses
-- **Structured output**: JSON Schema validation and parsing
-- **Error mapping**: Detailed provider-specific error handling
-- **Async support**: Full async/await implementation for all methods
+- **OpenAI** (`repo://libs/partners/openai/langchain_openai/chat_models/base.py`) - Comprehensive reference with advanced Responses API, streaming, structured output, error handling
+- **Anthropic** (`repo://libs/partners/anthropic/langchain_anthropic/chat_models.py`) - Full-featured with tool calling, vision, and reasoning support
+- **DeepSeek** (`/libs/partners/deepseek/langchain_deepseek/chat_models.py`) - Extends `BaseChatOpenAI`, demonstrates API-compatible providers
+- **xAI** (`/libs/partners/xai/langchain_xai/chat_models.py`) - Another `BaseChatOpenAI` subclass with reasoning model support
+- **OpenRouter** (`/libs/partners/openrouter/langchain_openrouter/chat_models.py`) - Implements core `BaseChatModel` directly for non-OpenAI-compatible APIs
+
+**Choosing a base class pattern:**
+
+- **Extend `BaseChatOpenAI`** if your provider's API is OpenAI-compatible (share message conversion, tool calling, and response parsing)
+- **Extend `BaseChatModel` directly** if your provider has unique API conventions (requires more implementation but maximum flexibility)
 
 ## 11. Maintenance and Updates
 
@@ -912,7 +951,7 @@ pytest tests/integration_tests/
 ## Checklist for Adding a New Provider
 
 - [ ] Create package structure in `/libs/partners/provider_name/`
-- [ ] Implement `ChatProviderModel` inheriting `BaseChatModel`
+- [ ] Implement `ChatProviderModel` inheriting `BaseChatModel` (or `BaseChatOpenAI` if API-compatible)
 - [ ] Implement `_generate` method for synchronous generation
 - [ ] Implement `_stream` method for token streaming
 - [ ] Implement `_agenerate` or `_astream` for async support

@@ -1,12 +1,11 @@
 ---
 type: "Reference"
-title: "Agent Factory and create_agent"
-description: "The agent factory constructs state machines that orchestrate conversation flow between a language model, tool execution, and middleware layers. The create_agent function handles tool binding, structured output, state schema resolution, and graph compilation."
-tags: [agents, factory, state-machine, middleware, langgraph]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-21T08:30:16.745Z
+title: "Agent Factory: create_agent and Subagent Composition"
+description: "The agent factory constructs compiled LangGraph state machines that orchestrate model invocation, tool execution, and middleware composition. Covers create_agent signature, middleware stacking, structured output strategies, and subagent patterns via graph nesting."
+tags: [agents, factory, state-machine, middleware, langgraph, subagents]
 sources:
+  - id: openwiki-source-2bb5c49861e72a9099b51970
+    resource: repo://libs/langchain_v1/langchain/agents/_subagent_transformer.py
   - id: openwiki-source-71e882e1ac9757ea8e959a7c
     resource: repo://libs/langchain_v1/langchain/agents/factory.py
   - id: openwiki-source-07e634f5cd5f00c636010306
@@ -15,7 +14,10 @@ sources:
     resource: repo://libs/langchain_v1/langchain/agents/middleware/_trace_policy.py
   - id: openwiki-source-03e8ca0eebe37feda8566793
     resource: repo://libs/langchain_v1/langchain/agents/middleware/types.py
-generated: { by: "openwiki/0.5.0", at: "2026-09-21T08:30:16.745Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-24T08:28:08.003Z" }
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-24T08:28:08.003Z
 ---
 
 ## Overview
@@ -70,9 +72,9 @@ Agent execution flow showing middleware hooks at each stage.
 
 - **Entry Node**: Runs before_agent hooks once at start, then before_model hooks if present, else proceeds to model.
 - **Loop Entry**: Marks the beginning of the model-tool iteration loop. Tools loop back here after execution (unless exit conditions are met).
-- **Model Node**: Calls the language model with messages and system prompt. Handles structured output parsing.
+- **Model Node**: Calls the language model with messages and system prompt. Handles structured output parsing. Uses a `RunnableCallable` wrapper to support both sync (`model_node`) and async (`amodel_node`) implementations, selecting the appropriate variant at runtime.
 - **After Model**: Runs after_model hooks after model output (runs each loop iteration).
-- **Tools Node**: Executes tools returned by the model. Only added if tools are defined. Skipped if model returns no tool calls.
+- **Tools Node**: Executes tools returned by the model. Only added if tools are defined. Skipped if model returns no tool calls. Routes back to loop entry or exit based on `return_direct`, structured output completion, or pending tool calls.
 - **Exit Node**: Runs after_agent hooks once at end, then exits the graph.
 
 ## Core Concepts
@@ -180,7 +182,7 @@ def create_agent(
 - **store**: Cross-thread persistence (e.g., user profiles, document stores).
 - **interrupt_before/after**: Node names to suspend execution for user intervention.
 - **debug**: Enable verbose logging.
-- **name**: Graph name; used in LangSmith tracing and subgraph imports.
+- **name**: Graph name; used in LangSmith tracing and subgraph imports. When set, enables this agent to be added to another graph as a nested subagent with automatic parent → subagent and subagent → parent message routing.
 - **cache**: Execution cache (LangGraph feature).
 - **transformers**: Additional stream transformer factories (e.g., for custom event filtering).
 
@@ -233,7 +235,7 @@ class MyMiddleware(AgentMiddleware):
   - Example: `middleware=[A, B, C]` → `A.before_model → B.before_model → C.before_model`
   - For `wrap_*` hooks (outermost matters for retry/caching): `A.wrap_model_call(request, B.wrap_model_call(request, C.wrap_model_call(request, execute)))`
 - **Sync/Async**: Sync and async paths are kept separate. Each hook can choose to implement sync, async, or both. The factory selects the appropriate variant at runtime.
-- **Commands**: Middleware can return `Command` objects from `wrap_model_call` to update state (e.g., add synthetic tool messages). Commands accumulate inner-first and are applied after the model response.
+- **Commands**: Middleware can return `Command` objects from `wrap_model_call` to update state (e.g., add synthetic tool messages). Commands accumulate inner-first and are applied after the model response through the graph's reducers.
 
 ### Request/Response Immutability
 
@@ -542,6 +544,64 @@ If middleware adds tools to `request.tools` that aren't in the client-side `Tool
 - Message includes registered tools and guidance on fixing it
 - Mitigation: Either register tools upfront, or implement `wrap_tool_call` to execute dynamic tools
 
+## Subagent Composition
+
+Agents can be nested within other agents to create hierarchical multi-agent systems. When an agent is created with a `name` parameter, it becomes eligible for nesting:
+
+```python
+# Create a weather subagent
+weather_agent = create_agent(
+    model="openai:gpt-4o",
+    tools=[check_weather],
+    name="weather_agent",
+    system_prompt="You are a weather expert."
+)
+
+# Create a main agent that can delegate to the weather agent
+def delegate_to_weather(query: str) -> str:
+    """Delegate weather questions to the weather subagent."""
+    # The weather_agent is passed as a tool here
+    return "Delegating to weather expert..."
+
+main_agent = create_agent(
+    model="openai:gpt-4o",
+    tools=[delegate_to_weather],
+    name="main_agent",
+    system_prompt="You are a helpful assistant that can delegate to specialists."
+)
+```
+
+### Subagent Execution and Observation
+
+When a subagent is invoked from a parent agent via a tool call:
+
+1. The parent agent's model returns a tool call to invoke the subagent
+2. The factory's tool execution node dispatches to the named subagent
+3. The `SubagentTransformer` detects the boundary (via `lc_agent_name` field) and surfaces a typed `SubagentRunStream` handle on the parent's `run.subagents` list
+4. The subagent executes independently, maintaining its own state and middleware stack
+5. Results are wrapped in a `ToolMessage` and returned to the parent
+
+The subagent's execution is fully observable via:
+```python
+# Streaming from parent
+for event in agent.stream(inputs):
+    # Parent events
+    pass
+
+# Accessing subagent runs (via LangSmith or checkpointer)
+# run.subagents list contains SubagentRunStream handles
+# Each has properties: name, cause (tool_call_id), and full execution history
+```
+
+### Subagent Tool Specifications
+
+When building tools that invoke subagents, the tool should:
+- Accept the subagent's input format (typically a string or dict)
+- Return the subagent's output as a string (for model consumption)
+- Document the subagent's capabilities and expected inputs
+
+This allows the parent agent's model to intelligently decide when to delegate.
+
 ## Extension Points
 
 Developers can customize agents via:
@@ -589,7 +649,7 @@ agent = create_agent(
 | `interrupt_before` | `list[str]` | `None` | Pause before these nodes |
 | `interrupt_after` | `list[str]` | `None` | Pause after these nodes |
 | `debug` | `bool` | `False` | Verbose logging |
-| `name` | `str` | `None` | Graph identifier |
+| `name` | `str` | `None` | Graph identifier (enables subagent nesting) |
 
 ## See Also
 

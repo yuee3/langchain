@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:7147252f9ec42f2a3fbb825bf918edec111c30d11e7c9c2e161ba8a4dc68942e",
+  "pageVersion": "sha256:731c4777c923979c4eefb1e96b0eb4d01fa097004f3a604668f0298ecef7b6fe",
   "claims": [
     {
       "id": "claim_c71edae5b0f64c8fa79c17ef1aca0f6b",
@@ -8,7 +8,7 @@
       "evidence": [
         {
           "resource": "repo://libs/langchain_v1/langchain/agents/factory.py",
-          "version": "repo-file-v1:sha256:ecbb580ed4083a985a40c71735aa0eafb58d3a00ac74d2e511ab14a3aa3d37b1"
+          "version": "repo-file-v1:sha256:3c62d7e90b77e55021247dfc6982445b01b9dda83ca092ae289364c0b74381a5"
         }
       ]
     },
@@ -98,7 +98,7 @@
       "evidence": [
         {
           "resource": "repo://libs/partners/openai/langchain_openai/chat_models/base.py",
-          "version": "repo-file-v1:sha256:b7f271886609e76085c3bd3a0adca0c2a52327b8165c23533a3602b3ba3cdec2"
+          "version": "repo-file-v1:sha256:5d1eeed0593e3bd6c199b08a0a75ad74f2e1ae70eafaf423faf58fe32e7e9ede"
         }
       ]
     },
@@ -189,6 +189,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-22T08:27:06.345Z"
+    "at": "2026-09-24T08:28:08.003Z"
   }
 }

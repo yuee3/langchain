@@ -3,6 +3,9 @@ type: "Getting Started"
 title: "LangChain Repository Quick Start"
 description: "Entry point for engineers: orient to the monorepo structure, run first tests, understand what to edit for common tasks, and route to major development areas."
 tags: [quickstart, getting-started, monorepo, setup, development, first-steps, cli-reference]
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-24T08:28:08.003Z
 sources:
   - id: openwiki-source-4d1645cb6317345817452838
     resource: repo://.pre-commit-config.yaml
@@ -41,9 +44,6 @@ sources:
   - id: openwiki-source-48ce5ee900993294d349b4e8
     resource: repo://libs/standard-tests/langchain_tests/__init__.py
 generated: { by: "openwiki/0.5.0", at: "2026-09-21T08:30:16.745Z" }
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-22T08:27:06.345Z
 ---
 
 ## Welcome to LangChain Development
